@@ -1,0 +1,33 @@
+name: Daily Auto Commit
+
+on:
+  schedule:
+    # Runs once per day at 00:17 UTC (specific hour/minute, no wildcards)
+    - cron: "17 0 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  daily_commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Update log - 24f1000637@ds.study.iitm.ac.in
+        run: |
+          mkdir -p logs
+          echo "Daily update: $(date -u '+%Y-%m-%d %H:%M:%S UTC') run_id=${{ github.run_id }}" >> logs/daily-update.log
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "24f1000637@ds.study.iitm.ac.in"
+
+          git add logs/daily-update.log
+
+          # Always create a new commit (the line above changes every run)
+          git commit -m "chore: daily automated update ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+          git push
